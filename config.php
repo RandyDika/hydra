@@ -119,7 +119,16 @@ function hydra_h(?string $value): string
 
 function hydra_logo_src(): ?string
 {
-    return file_exists(__DIR__ . '/logo.png') ? 'logo.png' : null;
+    $path = __DIR__ . '/logo.png';
+
+    if (!file_exists($path)) {
+        return null;
+    }
+
+    $type = pathinfo($path, PATHINFO_EXTENSION);
+    $data = file_get_contents($path);
+
+    return 'data:image/' . $type . ';base64,' . base64_encode($data);
 }
 
 function hydra_tmp_dir(): string
