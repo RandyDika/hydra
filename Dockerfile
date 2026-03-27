@@ -27,4 +27,4 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 EXPOSE 10000
 
 # Run PHP server
-CMD ["php", "-S", "0.0.0.0:10000", "index.php"]
+CMD php -S 0.0.0.0:${PORT:-10000} -t .
