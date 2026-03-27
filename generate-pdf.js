@@ -1,22 +1,26 @@
 const puppeteer = require('puppeteer');
+const fs = require('fs');
 
 (async () => {
-  const [, , url, output] = process.argv;
+  const [, , input, output] = process.argv;
 
-  if (!url || !output) {
-    console.error('Usage: node generate-pdf.js <url> <output>');
+  if (!input || !output) {
+    console.error('Usage: node generate-pdf.js <html-file> <output>');
     process.exit(1);
   }
 
+  const html = fs.readFileSync(input, 'utf-8');
+
   const browser = await puppeteer.launch({
-  executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
-  headless: true,
-  args: ['--no-sandbox', '--disable-setuid-sandbox']
-});
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
 
   try {
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
+
+    await page.setContent(html, { waitUntil: 'networkidle0' });
 
     await page.pdf({
       path: output,
