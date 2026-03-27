@@ -1,0 +1,12 @@
+{
+  "name": "hydra-swim-report-puppeteer-mvp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hydra Swim Club report MVP with PHP + Puppeteer PDF export",
+  "scripts": {
+    "pdf": "node generate-pdf.js"
+  },
+  "dependencies": {
+    "puppeteer": "^24.5.0"
+  }
+}
