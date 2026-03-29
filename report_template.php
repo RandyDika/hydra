@@ -6,6 +6,17 @@ require_once __DIR__ . '/config.php';
 
 function hydra_render_report(array $data): string
 {
+    $page = $_GET['page'] ?? ($_POST['page'] ?? 'individu');
+
+    if ($page === 'komunal') {
+        return hydra_render_report_komunal($data);
+    }
+
+    return hydra_render_report_individu($data);
+}
+
+function hydra_render_report_individu(array $data): string
+{
     $sections = hydra_sections();
     $legend = hydra_score_legend();
     $logoSrc = hydra_logo_src();
@@ -19,17 +30,14 @@ function hydra_render_report(array $data): string
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Laporan Bulanan Member Hydra Swim Club</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     @page {
       size: A4 portrait;
       margin: 10mm;
     }
 
-    html,
-    body {
+    html, body {
       margin: 0;
       padding: 0;
       background: #fff;
@@ -37,10 +45,6 @@ function hydra_render_report(array $data): string
       font-family: Arial, Helvetica, sans-serif;
       font-size: 10px;
       line-height: 1.25;
-    }
-
-    body {
-      padding: 0;
     }
 
     .page {
@@ -58,13 +62,9 @@ function hydra_render_report(array $data): string
       margin-bottom: 8px;
     }
 
-    .header-left {
-      font-size: 10px;
-    }
-
-    .header-center {
-      text-align: center;
-    }
+    .header-left { font-size: 10px; }
+    .header-center { text-align: center; }
+    .header-right { text-align: right; }
 
     .title {
       margin: 0;
@@ -72,10 +72,6 @@ function hydra_render_report(array $data): string
       font-weight: 700;
       text-transform: uppercase;
       line-height: 1.2;
-    }
-
-    .header-right {
-      text-align: right;
     }
 
     .logo {
@@ -143,55 +139,19 @@ function hydra_render_report(array $data): string
       background: #f8f8f8;
     }
 
-    .report-table td,
-    .legend-table td,
-    .notes-table td {
-      word-wrap: break-word;
-    }
-
-    .text-center {
-      text-align: center;
-    }
-
-    .col-no {
-      width: 26px;
-      text-align: center;
-    }
-
-    .col-score {
-      width: 26px;
-      text-align: center;
-    }
-
-    .col-note {
-      width: 110px;
-    }
-
-    .legend-score {
-      width: 60px;
-    }
-
-    .legend-label {
-      width: 130px;
-    }
-
-    .check {
-      font-weight: 700;
-      font-size: 12px;
-      line-height: 1;
-      vertical-align: middle;
-    }
+    .text-center { text-align: center; }
+    .col-no { width: 26px; text-align: center; }
+    .col-score { width: 26px; text-align: center; }
+    .col-note { width: 110px; }
+    .legend-score { width: 60px; }
+    .legend-label { width: 130px; }
+    .check { font-weight: 700; font-size: 12px; line-height: 1; vertical-align: middle; }
 
     .bottom-section {
       display: grid;
       grid-template-columns: 1.2fr 0.8fr;
       gap: 8px;
       align-items: start;
-    }
-
-    .bottom-left .section-title,
-    .bottom-right .section-title {
-      margin-top: 4px;
     }
 
     .notes-table td {
@@ -201,34 +161,10 @@ function hydra_render_report(array $data): string
       font-size: 10px;
       line-height: 1.3;
     }
-
-    @media print {
-      html,
-      body {
-        width: 210mm;
-        height: 297mm;
-      }
-
-      .page {
-        width: 190mm;
-        min-height: auto;
-        margin: 0 auto;
-      }
-
-      .section-title,
-      .report-table,
-      .legend-table,
-      .notes-table,
-      .bottom-section,
-      .header {
-        page-break-inside: avoid;
-      }
-    }
   </style>
 </head>
 <body>
   <div class="page">
-
     <div class="header">
       <div class="header-left">
         <table class="member-info">
@@ -296,7 +232,7 @@ function hydra_render_report(array $data): string
     <?php endforeach; ?>
 
     <div class="bottom-section">
-      <div class="bottom-left">
+      <div>
         <div class="section-title">Keterangan Skor</div>
         <table class="legend-table">
           <thead>
@@ -318,7 +254,7 @@ function hydra_render_report(array $data): string
         </table>
       </div>
 
-      <div class="bottom-right">
+      <div>
         <div class="section-title">Catatan</div>
         <table class="notes-table">
           <tr>
@@ -326,6 +262,201 @@ function hydra_render_report(array $data): string
           </tr>
         </table>
       </div>
+    </div>
+  </div>
+</body>
+</html>
+    <?php
+
+    return (string) ob_get_clean();
+}
+
+function hydra_render_report_komunal(array $data): string
+{
+    $logoSrc = hydra_logo_src();
+
+    $month = trim((string)($_POST['komunal_month'] ?? 'Februari 2025'));
+    $coach = trim((string)($_POST['komunal_coach'] ?? 'Coach Nadya'));
+    $students = $_POST['komunal_students'] ?? [];
+    $remarks = $_POST['komunal_remarks'] ?? [];
+
+    ob_start();
+    ?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Laporan Bulanan Komunal Hydra Swim Club</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    @page {
+      size: A4 portrait;
+      margin: 10mm;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      color: #111;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10px;
+      line-height: 1.3;
+    }
+
+    .page {
+      width: 190mm;
+      min-height: 277mm;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: grid;
+      grid-template-columns: 42mm 1fr;
+      align-items: center;
+      gap: 8mm;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1.5px solid #000;
+    }
+
+    .brand-box {
+      text-align: center;
+    }
+
+    .logo {
+      width: 42mm;
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 4px;
+    }
+
+    .logo-placeholder {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42mm;
+      height: 28mm;
+      border: 1px solid #000;
+      font-size: 10px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .brand-label {
+      font-size: 10px;
+      letter-spacing: 3px;
+    }
+
+    .report-header h1 {
+      margin: 0;
+      font-size: 26px;
+      line-height: 1;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .report-header h2 {
+      margin: 8px 0 0;
+      font-size: 13px;
+      line-height: 1.1;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .meta {
+      margin-bottom: 8px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    table.report-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .report-table th,
+    .report-table td {
+      border: 1px solid #000;
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+
+    .report-table th {
+      background: #efefef;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .col-name {
+      width: 30mm;
+    }
+
+    .student-name {
+      font-weight: 800;
+      text-transform: uppercase;
+      white-space: pre-line;
+    }
+
+    .progress-text {
+      white-space: pre-line;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .footer-note {
+      margin-top: 8px;
+      font-size: 9px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <div class="brand-box">
+        <?php if ($logoSrc): ?>
+          <img src="<?= hydra_h($logoSrc) ?>" alt="Logo Hydra Swim Club" class="logo">
+        <?php else: ?>
+          <div class="logo-placeholder">HYDRA LOGO</div>
+        <?php endif; ?>
+        <div class="brand-label">SWIM CLUB</div>
+      </div>
+
+      <div class="report-header">
+        <h1>MONTHLY REPORT</h1>
+        <h2><?= hydra_h($coach) ?></h2>
+      </div>
+    </div>
+
+    <div class="meta">
+      BULAN: <?= hydra_h($month) ?>
+    </div>
+
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th class="col-name">NAMA</th>
+          <th>PROGRESS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($students as $rowNo => $student): ?>
+          <tr>
+            <td class="student-name"><?= hydra_h($student['name'] ?? '') ?></td>
+            <td class="progress-text"><?= nl2br(hydra_h($remarks[$rowNo] ?? '')) ?></td>
+          </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+
+    <div class="footer-note">
+      Hydra Swim Club - Monthly Report
     </div>
   </div>
 </body>
